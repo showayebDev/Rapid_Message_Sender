@@ -1,0 +1,28 @@
+[project]
+name = "rapid-message-sender"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Showayeb Ahamed", email = "showayeb.dev@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "pillow>=12.3.0",
+    "pyautogui>=0.9.54",
+    "pynput>=1.8.2",
+    "pyperclip>=1.11.0",
+    "pyside6>=6.11.1",
+]
+
+[project.scripts]
+rapid-message-sender = "rapid_message_sender:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "auto-py-to-exe>=2.50.1",
+]
