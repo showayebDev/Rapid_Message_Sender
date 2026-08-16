@@ -17,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 rapid-message-sender = "rapid_message_sender:main"
+build-assets = "rapid_message_sender.ui.icon:build_assets"
 
 [build-system]
 requires = ["uv_build>=0.12.3,<0.13.0"]

@@ -1,4 +1,5 @@
 import os
+import sys
 from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QPen, QColor, QLinearGradient, QIcon
 from PySide6.QtCore import Qt
 
@@ -65,24 +66,32 @@ def render_icon_pixmap(size: int = 512) -> QPixmap:
 
 def generate_thumbnail(size: int = 512) -> str:
     """
-    Renders and saves a 512px x 512px square thumbnail PNG.
+    Renders and saves a 512px x 512px square thumbnail PNG strictly inside the assets directory.
     """
     assets_dir = os.path.join(os.path.dirname(__file__), "assets")
     os.makedirs(assets_dir, exist_ok=True)
     thumbnail_path = os.path.join(assets_dir, "app_thumbnail_512.png")
     
-    # Project root path for easy user access
-    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-    root_thumbnail_path = os.path.join(root_dir, "app_thumbnail_512.png")
-
-    pix = render_icon_pixmap(size)
-    pix.save(thumbnail_path, "PNG")
-    try:
-        pix.save(root_thumbnail_path, "PNG")
-    except Exception:
-        pass
+    if not os.path.exists(thumbnail_path):
+        pix = render_icon_pixmap(size)
+        pix.save(thumbnail_path, "PNG")
 
     return thumbnail_path
+
+def ensure_ico_exists():
+    """Converts app_icon.png into app_icon.ico if missing."""
+    assets_dir = os.path.join(os.path.dirname(__file__), "assets")
+    icon_png_path = os.path.join(assets_dir, "app_icon.png")
+    icon_ico_path = os.path.join(assets_dir, "app_icon.ico")
+    
+    if os.path.exists(icon_png_path) and not os.path.exists(icon_ico_path):
+        try:
+            from PIL import Image
+            img = Image.open(icon_png_path)
+            sizes = [(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
+            img.save(icon_ico_path, format="ICO", sizes=sizes)
+        except Exception:
+            pass
 
 def get_app_icon() -> QIcon:
     """
@@ -94,8 +103,9 @@ def get_app_icon() -> QIcon:
     icon_png_path = os.path.join(assets_dir, "app_icon.png")
     icon_ico_path = os.path.join(assets_dir, "app_icon.ico")
 
-    # Ensure 512px thumbnail exists
+    # Ensure 512px thumbnail exists inside assets
     generate_thumbnail(512)
+    ensure_ico_exists()
 
     # If ICO file exists, load directly for native OS icon support
     if os.path.exists(icon_ico_path):
@@ -113,4 +123,44 @@ def get_app_icon() -> QIcon:
         if size == 256 and not os.path.exists(icon_png_path):
             pix.save(icon_png_path, "PNG")
 
+    ensure_ico_exists()
     return icon
+
+def build_assets():
+    """CLI Entrypoint to build/re-generate all icon and UI image assets."""
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)
+
+    assets_dir = os.path.join(os.path.dirname(__file__), "assets")
+    os.makedirs(assets_dir, exist_ok=True)
+
+    # 1. App Icon PNG (256x256)
+    icon_png_path = os.path.join(assets_dir, "app_icon.png")
+    pix_256 = render_icon_pixmap(256)
+    pix_256.save(icon_png_path, "PNG")
+    print(f"[SUCCESS] Generated '{icon_png_path}'")
+
+    # 2. App Icon ICO (Multi-resolution Windows ICO)
+    icon_ico_path = os.path.join(assets_dir, "app_icon.ico")
+    try:
+        from PIL import Image
+        img = Image.open(icon_png_path)
+        sizes = [(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
+        img.save(icon_ico_path, format="ICO", sizes=sizes)
+        print(f"[SUCCESS] Generated '{icon_ico_path}'")
+    except Exception as e:
+        print(f"[WARNING] Could not generate ICO file: {e}")
+
+    # 3. App Thumbnail PNG (512x512)
+    thumbnail_path = os.path.join(assets_dir, "app_thumbnail_512.png")
+    pix_512 = render_icon_pixmap(512)
+    pix_512.save(thumbnail_path, "PNG")
+    print(f"[SUCCESS] Generated '{thumbnail_path}'")
+
+    # 4. Checkmark PNG & Spin Arrows
+    from rapid_message_sender.ui.theme import get_checkmark_icon_path, get_arrow_icon_paths
+    chk = get_checkmark_icon_path()
+    up, down = get_arrow_icon_paths()
+    print("[SUCCESS] Generated UI assets: checkmark, spin_up, spin_down")
+
+    print("[SUCCESS] All application assets built successfully!")
