@@ -91,6 +91,7 @@ Your compiled executable will be output to the `dist/` directory:
 ## 💡 Pro-Tips & Troubleshooting
 
 - 😃 **Emoji & Special Characters**: If your message contains emojis (e.g. ⚡, 🔥, 🚀), select the **`⚡ Clipboard Copy & Paste`** input method for perfect unicode rendering. For standard text messages, use **`⌨️ Direct Character Typing`**.
+- 🌐 **Facebook, Instagram & Web QA Apps**: For web-based platforms or QA automation on applications like Facebook, Instagram, or Messenger, set the interval delay to **400 ms** or **500 ms** for smooth dispatch without triggering rate limits.
 - ⏱️ **Slow Web/Desktop Chat Apps**: If a target messaging platform (like WhatsApp Web or Discord) types out messages line-by-line without triggering the Enter send key, increase **Wait between each message** to **1000 ms** (1 second) to allow the chat box to process inputs smoothly!
 
 ---

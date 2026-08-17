@@ -206,7 +206,7 @@ class MessageWorker(QThread):
 
             # Message dispatch loop
             total = self.config.count
-            interval_sec = max(0.050, self.config.interval_ms / 1000.0)
+            interval_sec = max(0.100, self.config.interval_ms / 1000.0)
             send_key = self.config.send_key.lower()
 
             for i in range(1, total + 1):

@@ -143,6 +143,7 @@ class DocumentationWidget(QWidget):
 
         tips = [
             ("😄 Emoji & Special Character Tip", "If your message text contains emojis (e.g. ⚡, 🔥, 🚀), switch to the '⚡ Clipboard Copy & Paste' input method for reliable rendering. For standard text, use '⌨️ Direct Character Typing'."),
+            ("🌐 Facebook, Instagram & QA Web Apps", "For web-based platforms or QA testing on applications like Facebook, Instagram, or Messenger, set the interval delay to 400 ms or 500 ms for smooth dispatch without triggering input rate limits."),
             ("⏱️ Slow Web/App Dispatch Adjustment", "If a target messaging app (e.g. WhatsApp Web or Discord) receives written messages line-by-line without triggering the Enter send key, increase 'Wait between each message' to 1000 ms (1 sec) to allow the app to process inputs!")
         ]
 
