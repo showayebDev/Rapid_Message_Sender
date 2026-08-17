@@ -115,6 +115,20 @@ AutoUpdater::AutoUpdater(QWidget *parentWidget, const QString &currentVersion)
 {
 }
 
+QString AutoUpdater::calculateLocalSha256()
+{
+    QString exePath = QCoreApplication::applicationFilePath();
+    QFile exeFile(exePath);
+    if (!exeFile.open(QIODevice::ReadOnly)) {
+        return QString();
+    }
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    if (hash.addData(&exeFile)) {
+        return QString(hash.result().toHex()).toLower();
+    }
+    return QString();
+}
+
 bool AutoUpdater::isVersionNewer(const QString &latest, const QString &current)
 {
     QString cleanLatest = latest;
@@ -135,6 +149,8 @@ bool AutoUpdater::isVersionNewer(const QString &latest, const QString &current)
 void AutoUpdater::checkForUpdates(bool silentCheck)
 {
     m_silentCheck = silentCheck;
+    m_remoteSha256.clear();
+    m_checksumUrl.clear();
 
     QUrl url("https://api.github.com/repos/showayebDev/Rapid_Message_Sender/releases/latest");
     QNetworkRequest request(url);
@@ -203,28 +219,84 @@ void AutoUpdater::onReleaseInfoDownloaded()
     m_latestTag = obj["tag_name"].toString();
     m_releaseNotes = obj["body"].toString();
 
+    // 1. Check for SHA-256 hex string in release notes body (64 hex characters)
+    QRegularExpression sha256Regex("\\b[a-fA-F0-9]{64}\\b");
+    QRegularExpressionMatch match = sha256Regex.match(m_releaseNotes);
+    if (match.hasMatch()) {
+        m_remoteSha256 = match.captured(0).toLower();
+    }
+
+    // 2. Parse assets for .exe executable and .sha256 checksum asset files
     m_downloadUrl.clear();
+    m_checksumUrl.clear();
     QJsonArray assets = obj["assets"].toArray();
     for (const QJsonValue &val : assets) {
         QJsonObject assetObj = val.toObject();
         QString name = assetObj["name"].toString();
         if (name.endsWith(".exe", Qt::CaseInsensitive)) {
             m_downloadUrl = assetObj["browser_download_url"].toString();
-            break;
+        } else if (name.endsWith(".sha256", Qt::CaseInsensitive) || name.endsWith("checksums.txt", Qt::CaseInsensitive)) {
+            m_checksumUrl = assetObj["browser_download_url"].toString();
         }
     }
 
-    bool hasUpdate = isVersionNewer(m_latestTag, m_currentVersion);
+    // 3. If a checksum asset URL exists and we don't have SHA256 yet, fetch it asynchronously
+    if (!m_checksumUrl.isEmpty() && m_remoteSha256.isEmpty()) {
+        QNetworkRequest request((QUrl(m_checksumUrl)));
+        request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+        request.setRawHeader("User-Agent", "RapidMessageSender-Updater/1.0");
+
+        m_checksumReply = m_netManager.get(request);
+        connect(m_checksumReply, &QNetworkReply::finished, this, &AutoUpdater::onChecksumDownloaded);
+        return;
+    }
+
+    evaluateUpdate();
+}
+
+void AutoUpdater::onChecksumDownloaded()
+{
+    if (m_checksumReply) {
+        if (m_checksumReply->error() == QNetworkReply::NoError) {
+            QString checksumText = QString::fromUtf8(m_checksumReply->readAll());
+            QRegularExpression sha256Regex("\\b[a-fA-F0-9]{64}\\b");
+            QRegularExpressionMatch match = sha256Regex.match(checksumText);
+            if (match.hasMatch()) {
+                m_remoteSha256 = match.captured(0).toLower();
+            }
+        }
+        m_checksumReply->deleteLater();
+        m_checksumReply = nullptr;
+    }
+
+    evaluateUpdate();
+}
+
+void AutoUpdater::evaluateUpdate()
+{
+    QString localSha256 = calculateLocalSha256();
+    bool versionIsNewer = isVersionNewer(m_latestTag, m_currentVersion);
+    bool sha256Mismatch = !m_remoteSha256.isEmpty() && !localSha256.isEmpty() && (m_remoteSha256.toLower() != localSha256.toLower());
+
+    bool hasUpdate = versionIsNewer || sha256Mismatch;
 
     if (hasUpdate) {
-        UpdateDialog dlg(m_parentWidget, m_latestTag, m_currentVersion, m_releaseNotes);
+        QString updateMessage = m_releaseNotes;
+        if (sha256Mismatch && !versionIsNewer) {
+            updateMessage.prepend("⚠️ **Re-build / Executable Checksum Change Detected**\n\nThe version tag (" + m_latestTag + ") matches your installed version, but a new executable binary build has been updated on GitHub (SHA-256 hash mismatch).\n\n"
+                                  "**Local SHA-256**: `" + localSha256.left(16) + "...`  \n"
+                                  "**Remote SHA-256**: `" + m_remoteSha256.left(16) + "...`\n\n---\n\n");
+        }
+
+        UpdateDialog dlg(m_parentWidget, m_latestTag, m_currentVersion, updateMessage);
         if (dlg.exec() == QDialog::Accepted) {
             downloadAndInstall();
         }
     } else {
         if (!m_silentCheck) {
+            QString hashInfo = localSha256.isEmpty() ? "" : QString("\n\nVerified Binary SHA-256:\n%1").arg(localSha256);
             QMessageBox::information(m_parentWidget, "Up to Date",
-                                     QString("You are using the latest version (%1).").arg(m_currentVersion));
+                                     QString("You are using the latest version (%1).%2").arg(m_currentVersion).arg(hashInfo));
         }
     }
 
