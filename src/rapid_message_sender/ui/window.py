@@ -161,7 +161,7 @@ class MainWindow(QMainWindow):
 
         lbl_interval = QLabel("Wait between each message:")
         self.interval_spin = NoWheelSpinBox()
-        self.interval_spin.setRange(1, 60000)
+        self.interval_spin.setRange(50, 60000)
         self.interval_spin.setSingleStep(10)
         self.interval_spin.setValue(100)
         self.interval_spin.setSuffix(" ms")

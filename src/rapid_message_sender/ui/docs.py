@@ -135,7 +135,37 @@ class DocumentationWidget(QWidget):
         scroll_layout.addWidget(features_group)
 
         # -------------------------------------------------------------
-        # Section 3: Keyboard Shortcuts Summary Table
+        # Section 3: 💡 Pro-Tips & Troubleshooting
+        # -------------------------------------------------------------
+        tips_group = QGroupBox("💡 Pro-Tips & Troubleshooting")
+        tips_vbox = QVBoxLayout(tips_group)
+        tips_vbox.setSpacing(12)
+
+        tips = [
+            ("😄 Emoji & Special Character Tip", "If your message text contains emojis (e.g. ⚡, 🔥, 🚀), switch to the '⚡ Clipboard Copy & Paste' input method for reliable rendering. For standard text, use '⌨️ Direct Character Typing'."),
+            ("⏱️ Slow Web/App Dispatch Adjustment", "If a target messaging app (e.g. WhatsApp Web or Discord) receives written messages line-by-line without triggering the Enter send key, increase 'Wait between each message' to 1000 ms (1 sec) to allow the app to process inputs!")
+        ]
+
+        for t_title, t_desc in tips:
+            t_box = QFrame()
+            t_box.setObjectName("StatBox")
+            tb_vbox = QVBoxLayout(t_box)
+            tb_vbox.setContentsMargins(12, 10, 12, 10)
+
+            title_lbl = QLabel(t_title)
+            title_lbl.setStyleSheet("font-weight: 700; color: #F59E0B; font-size: 13px;")
+            desc_lbl = QLabel(t_desc)
+            desc_lbl.setStyleSheet("color: #E2E8F0; font-size: 12px; margin-top: 4px;")
+            desc_lbl.setWordWrap(True)
+
+            tb_vbox.addWidget(title_lbl)
+            tb_vbox.addWidget(desc_lbl)
+            tips_vbox.addWidget(t_box)
+
+        scroll_layout.addWidget(tips_group)
+
+        # -------------------------------------------------------------
+        # Section 4: Keyboard Shortcuts Summary Table
         # -------------------------------------------------------------
         shortcuts_group = QGroupBox("⌨️ Shortcuts & Hotkey Reference")
         shortcuts_vbox = QVBoxLayout(shortcuts_group)
