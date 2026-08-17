@@ -11,3 +11,4 @@ class SenderConfig:
     counter_position: str = "after"  # "after" or "before"
     send_key: str = "enter"  # "enter", "ctrl+enter", "shift+enter", or "none"
     restore_clipboard: bool = True
+    input_mode: str = "typewrite"  # "typewrite" (Direct Typing) or "paste" (Clipboard Copy & Paste)

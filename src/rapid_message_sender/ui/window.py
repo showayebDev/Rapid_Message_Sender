@@ -39,8 +39,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(f"Rapid Message Sender ({CURRENT_VERSION})")
-        self.setMinimumSize(1100, 720)
-        self.resize(1100, 720)
+        self.setMinimumSize(1200, 720)
+        self.resize(1200, 720)
 
         # Set application window icon
         self.setWindowIcon(get_app_icon())
@@ -147,6 +147,13 @@ class MainWindow(QMainWindow):
         form_layout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         form_layout.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
+        lbl_input_mode = QLabel("Input Method:")
+        self.input_mode_combo = NoWheelComboBox()
+        self.input_mode_combo.addItems([
+            "⌨️ Direct Character Typing (Simulated Keyboard)",
+            "⚡ Clipboard Copy & Paste (Ultra-Fast)"
+        ])
+
         lbl_count = QLabel("How many times send:")
         self.count_spin = NoWheelSpinBox()
         self.count_spin.setRange(1, 100000)
@@ -165,19 +172,20 @@ class MainWindow(QMainWindow):
         self.start_delay_spin.setValue(5)
         self.start_delay_spin.setSuffix(" sec")
 
-        lbl_send_key = QLabel("Trigger Key after Paste:")
+        lbl_send_key = QLabel("Trigger Key after Typing:")
         self.send_key_combo = NoWheelComboBox()
         self.send_key_combo.addItems([
             "Enter (Standard Send)",
             "Ctrl + Enter",
             "Shift + Enter",
-            "None (Paste Only)"
+            "None (Type Only)"
         ])
 
         # Apply expanding width to ensure all inputs match width exactly
-        for widget in (self.count_spin, self.interval_spin, self.start_delay_spin, self.send_key_combo):
+        for widget in (self.input_mode_combo, self.count_spin, self.interval_spin, self.start_delay_spin, self.send_key_combo):
             widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
+        form_layout.addRow(lbl_input_mode, self.input_mode_combo)
         form_layout.addRow(lbl_count, self.count_spin)
         form_layout.addRow(lbl_interval, self.interval_spin)
         form_layout.addRow(lbl_start_delay, self.start_delay_spin)
@@ -494,6 +502,8 @@ class MainWindow(QMainWindow):
         self._set_inputs_enabled(False)
 
         key_mapping = {0: "enter", 1: "ctrl+enter", 2: "shift+enter", 3: "none"}
+        input_mode_val = "paste" if self.input_mode_combo.currentIndex() == 1 else "typewrite"
+
         config = SenderConfig(
             message=message,
             count=self.count_spin.value(),
@@ -503,7 +513,8 @@ class MainWindow(QMainWindow):
             counter_separator=self._get_separator(),
             counter_position="after" if self.pos_combo.currentIndex() == 0 else "before",
             send_key=key_mapping.get(self.send_key_combo.currentIndex(), "enter"),
-            restore_clipboard=self.restore_clip_cb.isChecked()
+            restore_clipboard=self.restore_clip_cb.isChecked(),
+            input_mode=input_mode_val
         )
 
         self.progress_bar.setMaximum(config.count)
@@ -512,6 +523,7 @@ class MainWindow(QMainWindow):
         self.stat_time_val.setText("0.0 s")
         self.log_text.clear()
         self.log_text.append(f"🟢 Initialized sender loop ({config.count} messages)...")
+        self.log_text.append(f"⌨️ Input Method: {'Direct Typing' if input_mode_val == 'typewrite' else 'Clipboard Paste'}")
         self.log_text.append(f"⏱️ Delay: {config.start_delay_sec}s | Interval: {config.interval_ms}ms")
 
         self.status_lbl.setText("COUNTDOWN ACTIVE")
@@ -542,6 +554,7 @@ class MainWindow(QMainWindow):
             self.worker.wait(1000)
 
         self.msg_edit.setText("Hello! This is a rapid automated message.")
+        self.input_mode_combo.setCurrentIndex(0)
         self.preset_combo.setCurrentIndex(0)
         self.count_spin.setValue(10)
         self.interval_spin.setValue(100)
@@ -584,7 +597,8 @@ class MainWindow(QMainWindow):
         preview = payload.replace('\n', ' ')
         if len(preview) > 50:
             preview = preview[:47] + "..."
-        self.log_text.append(f"[{current}/{total}] Pasted: '{preview}'")
+        mode_tag = "Typed" if self.input_mode_combo.currentIndex() == 0 else "Pasted"
+        self.log_text.append(f"[{current}/{total}] {mode_tag}: '{preview}'")
 
     def _on_finished(self, total_sent: int, elapsed: float):
         self.status_lbl.setText("COMPLETED")
@@ -617,6 +631,7 @@ class MainWindow(QMainWindow):
     def _set_inputs_enabled(self, enabled: bool):
         self.msg_edit.setEnabled(enabled)
         self.preset_combo.setEnabled(enabled)
+        self.input_mode_combo.setEnabled(enabled)
         self.count_spin.setEnabled(enabled)
         self.interval_spin.setEnabled(enabled)
         self.start_delay_spin.setEnabled(enabled)

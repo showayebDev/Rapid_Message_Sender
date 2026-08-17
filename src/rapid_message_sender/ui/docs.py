@@ -61,7 +61,7 @@ class DocumentationWidget(QWidget):
         scroll_layout.setSpacing(20)
 
         # -------------------------------------------------------------
-        # Section 1: Quick Start Guide (5-Step Tutorial)
+        # Section 1: Quick Start Guide (6-Step Tutorial)
         # -------------------------------------------------------------
         guide_group = QGroupBox("🚀 Quick Start Tutorial")
         guide_vbox = QVBoxLayout(guide_group)
@@ -69,10 +69,11 @@ class DocumentationWidget(QWidget):
 
         steps = [
             ("1️⃣ Step 1: Message Content", "Enter your single or multi-line message in the text editor. You can also pick preset templates from the dropdown menu."),
-            ("2️⃣ Step 2: Configure Automation", "Set 'How many times send' (e.g. 10), 'Wait between each message' (default 100 ms), and 'Start countdown delay' (default 5 sec)."),
-            ("3️⃣ Step 3: Counter & Options", "Check 'Show counter after message' if you want automatic numbering ('Hello 1', 'Hello 2'...). Select your preferred separator and position."),
-            ("4️⃣ Step 4: Start & Focus Target", "Click '🚀 Start Sending'. During the 5-second countdown, switch focus immediately to your target chat box (WhatsApp, Telegram, Discord, Messenger, Notepad, etc.)."),
-            ("5️⃣ Step 5: Emergency Stop (Ctrl + Q)", "If you need to stop sending at any time, press 'Ctrl + Q' on your keyboard. It works globally from any window!")
+            ("2️⃣ Step 2: Choose Input Method", "Select '⌨️ Direct Character Typing' (simulates real keyboard typing without touching clipboard) or '⚡ Clipboard Copy & Paste' (ultra-fast)."),
+            ("3️⃣ Step 3: Configure Automation", "Set 'How many times send' (e.g. 10), 'Wait between each message' (default 100 ms), and 'Start countdown delay' (default 5 sec)."),
+            ("4️⃣ Step 4: Counter & Options", "Check 'Show counter after message' if you want automatic numbering ('Hello 1', 'Hello 2'...). Select your preferred separator and position."),
+            ("5️⃣ Step 5: Start & Focus Target", "Click '🚀 Start Sending'. During the 5-second countdown, switch focus immediately to your target chat box (WhatsApp, Telegram, Discord, Messenger, Notepad, etc.)."),
+            ("6️⃣ Step 6: Emergency Stop (Ctrl + Q)", "If you need to stop sending at any time, press 'Ctrl + Q' on your keyboard. It works globally from any window!")
         ]
 
         for step_title, step_desc in steps:
@@ -101,11 +102,11 @@ class DocumentationWidget(QWidget):
         features_grid.setSpacing(12)
 
         feat_items = [
-            ("📋 Clipboard Copy-Paste Engine", "Uses PyAutoGUI Ctrl+V instead of slow typing, supporting multi-line text, emojis, and unicode at extreme speeds."),
-            ("⏱️ Zero Dropped Messages Sync", "Includes a 5ms OS clipboard buffer flush and 12ms render sync pause so every message (1, 2, 3...) is sent consecutively without skipping."),
+            ("⌨️ Direct Character Typing Engine", "Simulates direct hardware keyboard keystrokes via OS pynput controller, bypassing clipboard memory completely."),
+            ("⚡ Clipboard Copy-Paste Engine", "Uses PyAutoGUI Ctrl+V with strict read-back verification and Win32 fallback for ultra-fast multi-line pasting."),
+            ("🔄 GitHub Release Auto-Updater", "Asynchronously queries GitHub for new releases, downloads updates, replaces old EXE, and deletes old files automatically upon restart."),
             ("🚨 Dual Emergency Abort", "Press Ctrl+Q globally from any app or move your mouse cursor to the top-left corner (PyAutoGUI Fail-Safe) to stop sending instantly."),
-            ("🧹 Automatic Clipboard Cleanup", "Wipes active automated text from system memory when completed or stopped to prevent accidental pasting."),
-            ("🔢 Mouse Scroll Lock", "Prevents accidental changes to spinboxes and dropdowns when scrolling over input settings."),
+            ("🔒 Mouse Scroll Lock", "Prevents accidental changes to spinboxes and dropdowns when scrolling over input settings."),
             ("🔄 Reset All Button", "Restores all defaults, settings, log previews, and clipboard memory with a single click.")
         ]
 
@@ -146,9 +147,10 @@ class DocumentationWidget(QWidget):
 
         rows = [
             ("Ctrl + Q", "Global Emergency Abort (Works across all Windows applications)"),
-            ("Enter", "Standard trigger key sent after pasting message payload"),
+            ("Enter", "Standard trigger key sent after typing/pasting payload"),
             ("Ctrl + Enter", "Alternative send trigger (for apps like Discord/Slack multi-line settings)"),
             ("Shift + Enter", "Newline insertion without instant sending"),
+            ("None", "Type or paste message payload into input field without pressing any trigger key"),
             ("Top-Left Screen Corner", "PyAutoGUI hardware Mouse Fail-Safe abort")
         ]
 
