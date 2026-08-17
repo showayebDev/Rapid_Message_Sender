@@ -12,14 +12,15 @@ Designed for ultra-fast, reliable message dispatch across messaging platforms (W
 - ⌨️ **Dual Input Engines**:
   - **Direct Character Typing**: Simulates hardware keyboard keystrokes directly into active text boxes using Windows `SendInput()` API without touching system clipboard memory.
   - **Clipboard Copy & Paste**: Ultra-fast `Ctrl+V` pasting with native Win32 clipboard API, strict read-back verification, and micro-pauses.
-- 🔄 **GitHub Release Auto-Updater**: Asynchronously checks `showayebDev/Rapid_Message_Sender` for new GitHub Releases via `QNetworkAccessManager`, prompts user with changelogs, downloads latest binary, replaces old EXE, and deletes old files automatically upon restart.
+- 🔄 **Smart SHA-256 GitHub Release Auto-Updater**: Asynchronously checks `showayebDev/Rapid_Message_Sender` for new GitHub Releases via `QNetworkAccessManager`. Parses SHA-256 binary checksums and asset file sizes to detect updates even when re-compiled under the same version tag!
 - 🔢 **Customizable Repeat Count**: Dispatch anywhere from 1 to 100,000+ messages seamlessly.
-- ⏱️ **Zero Dropped Messages**: Built-in micro-pauses ensure every message (1, 2, 3...) is delivered sequentially.
-- 🔢 **Counter Suffix & Prefix**: Add customizable message numbering (`Message 1`, `Message 2`...) with custom separators (`Space`, `Semicolon`, `Dash`, `Hash`).
+- ⏱️ **Zero Dropped Messages**: Built-in 100 ms minimum safety floor & micro-pauses ensure every message (1, 2, 3...) is delivered sequentially.
+- 🔢 **Counter Suffix & Prefix**: Add customizable message numbering (`1 Message`, `Message 1`...) with custom separators (`Space`, `Semicolon`, `Dash`, `Hash`).
 - ⏳ **Countdown Start Delay**: Configurable delay (default **5 seconds**) giving you time to switch focus to your target text box.
 - 🛑 **Dual Emergency Abort**: Press **`Ctrl + Q`** globally from *any active window* (`RegisterHotKey`) or flick your mouse to the top-left screen corner (`(0,0)` Hardware Fail-Safe) to abort instantly.
 - 🔒 **Mouse Scroll Lock**: Input fields (`QSpinBox` & `QComboBox`) ignore hover mouse-wheel scrolling so you can scroll the settings page without changing values.
 - 📖 **Built-in Documentation Page**: Includes an interactive **User Guide** page built directly into the UI.
+- 🛡️ **Embedded Windows Manifest & Resource Metadata**: Embedded `app.manifest` and `version.rc` resource scripts provide official application identity, `asInvoker` security level, Windows 10/11 compatibility IDs, and PerMonitorV2 high-DPI scaling.
 - 🔄 **Reset All Button**: Restore all defaults, reset progress bars, clear logs, and wipe clipboard memory with a single click.
 - 🧹 **Automatic Clipboard Security**: Wipes automated clipboard memory using Windows Win32 API when finished or stopped.
 - 🎨 **Modern Dark Theme**: Dark slate UI design with live stats dashboard, progress bar, real-time activity logs, and vector checkmark (✔️) indicators.
@@ -34,6 +35,7 @@ Run the included `build.bat` script:
 ```cmd
 build.bat
 ```
+*(Automated script configures CMake, compiles C++ executable, and deploys Qt 6 runtime DLLs.)*
 
 ### 2. Manual Build via CMake
 ```bash
@@ -55,7 +57,7 @@ build\RapidMessageSender.exe
 1. **Enter Message**: Type your message in the text editor or select a template from the preset dropdown.
 2. **Select Input Method**: Choose **⌨️ Direct Character Typing** (recommended) or **⚡ Clipboard Copy & Paste**.
 3. **Configure Count & Delay**: Set **How many times send** (e.g. `10`), **Wait between each message** (default `100 ms`), and **Start countdown delay** (default `5 sec`).
-4. **Set Counter Options**: Check **Show counter after message** if you want automated numbering (`Message 1`, `Message 2`...). Select your separator and position.
+4. **Set Counter Options**: Enable automated numbering (Suffix or Prefix) and select your separator (`Space`, `Semicolon`, `Dash`, or `Hash`).
 5. **Trigger Key**: Choose your send key (`Enter`, `Ctrl + Enter`, `Shift + Enter`, or `None`).
 6. **Start Automation**: Click **`🚀 Start Sending`**.
 7. **Focus Target Window**: During the 5-second countdown, switch focus immediately to your target chat box (WhatsApp, Telegram, Discord, Messenger, Notepad, etc.).

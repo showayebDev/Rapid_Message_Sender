@@ -1,6 +1,7 @@
 #include <windows.h>
 
 IDI_ICON1 ICON "app_icon.ico"
+1 24 "app.manifest"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION     1,0,0,0
