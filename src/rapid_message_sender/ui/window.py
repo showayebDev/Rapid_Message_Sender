@@ -1,12 +1,13 @@
+import os
 import sys
 import logging
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QKeySequence, QShortcut
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QFont, QKeySequence, QShortcut, QDesktopServices
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit,
     QSpinBox, QCheckBox, QPushButton, QProgressBar, QFrame,
     QComboBox, QFormLayout, QMessageBox, QGroupBox, QScrollArea,
-    QSizePolicy, QGridLayout, QStackedWidget
+    QSizePolicy, QGridLayout, QStackedWidget, QProgressDialog
 )
 
 from rapid_message_sender.config import SenderConfig
@@ -15,6 +16,9 @@ from rapid_message_sender.hotkey import GlobalHotkeyListener
 from rapid_message_sender.ui.theme import get_stylesheet
 from rapid_message_sender.ui.docs import DocumentationWidget
 from rapid_message_sender.ui.icon import get_app_icon
+from rapid_message_sender.updater import (
+    UpdateCheckWorker, DownloadUpdateWorker, apply_update_and_restart, CURRENT_VERSION
+)
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +38,7 @@ class NoWheelComboBox(QComboBox):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Rapid Message Sender")
+        self.setWindowTitle(f"Rapid Message Sender ({CURRENT_VERSION})")
         self.setMinimumSize(1100, 720)
         self.resize(1100, 720)
 
@@ -43,10 +47,14 @@ class MainWindow(QMainWindow):
 
         self.worker = None
         self.hotkey_listener = None
+        self.check_worker = None
 
         self._build_ui()
         self._setup_hotkeys()
         self.setStyleSheet(get_stylesheet())
+
+        # Check for updates silently on launch
+        self._check_updates(silent=True)
 
     def _build_ui(self):
         root = QWidget(self)
@@ -69,6 +77,13 @@ class MainWindow(QMainWindow):
         title_vbox.addWidget(title_label)
         header_layout.addLayout(title_vbox)
         header_layout.addStretch()
+
+        # Update Checker Button
+        self.update_btn = QPushButton("🔄 Check Updates")
+        self.update_btn.setObjectName("SecondaryButton")
+        self.update_btn.setCursor(Qt.PointingHandCursor)
+        self.update_btn.clicked.connect(lambda: self._check_updates(silent=False))
+        header_layout.addWidget(self.update_btn)
 
         # Documentation Page Button
         self.docs_btn = QPushButton("📖 User Guide")
@@ -340,6 +355,115 @@ class MainWindow(QMainWindow):
             pass
         self.docs_btn.clicked.connect(self._show_documentation)
 
+    # -----------------------------------------------------------------
+    # Update Checking & Installer Flow
+    # -----------------------------------------------------------------
+    def _check_updates(self, silent: bool = False):
+        self._update_silent = silent
+        if not silent:
+            self.update_btn.setEnabled(False)
+            self.update_btn.setText("🔄 Checking...")
+            self.log_text.append("🔎 Checking GitHub for latest release...")
+
+        self.check_worker = UpdateCheckWorker(self)
+        self.check_worker.update_available.connect(self._on_update_available)
+        self.check_worker.no_update_found.connect(self._on_no_update_found)
+        self.check_worker.check_failed.connect(self._on_update_check_failed)
+        self.check_worker.start()
+
+    def _reset_update_btn(self):
+        self.update_btn.setEnabled(True)
+        self.update_btn.setText("🔄 Check Updates")
+
+    def _on_no_update_found(self, current_ver: str):
+        self._reset_update_btn()
+        if not getattr(self, "_update_silent", False):
+            self.log_text.append(f"✅ You are using the latest version ({current_ver}).")
+            QMessageBox.information(
+                self,
+                "No Updates Available",
+                f"You are already using the latest version ({current_ver})."
+            )
+
+    def _on_update_check_failed(self, error_msg: str):
+        self._reset_update_btn()
+        if not getattr(self, "_update_silent", False):
+            self.log_text.append(f"⚠️ Update check notice: {error_msg}")
+            QMessageBox.warning(
+                self,
+                "Update Check Notice",
+                f"Could not query GitHub updates:\n{error_msg}"
+            )
+
+    def _on_update_available(self, release_info: dict):
+        self._reset_update_btn()
+        tag_name = release_info.get("tag_name", "New Release")
+        notes = release_info.get("body", "No release notes provided.")
+        download_url = release_info.get("download_url")
+
+        self.log_text.append(f"🎉 New version available on GitHub: {tag_name}")
+
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("🎉 Update Available!")
+        msg_box.setText(f"<h3>A new release ({tag_name}) is available!</h3>Current version: <b>{CURRENT_VERSION}</b>")
+
+        preview_notes = notes[:300] + ("..." if len(notes) > 300 else "")
+        msg_box.setInformativeText(f"<b>Changelog:</b><br><pre>{preview_notes}</pre><br>Would you like to update now?")
+
+        update_btn = msg_box.addButton("🚀 Update Now", QMessageBox.AcceptRole)
+        later_btn = msg_box.addButton("Later", QMessageBox.RejectRole)
+
+        msg_box.exec()
+
+        if msg_box.clickedButton() == update_btn:
+            if download_url:
+                self._start_download_update(download_url, tag_name)
+            else:
+                # If no EXE asset attached, open GitHub release page in browser
+                QDesktopServices.openUrl(QUrl(release_info.get("html_url", "")))
+
+    def _start_download_update(self, download_url: str, tag_name: str):
+        import tempfile
+        save_path = os.path.join(tempfile.gettempdir(), f"RapidMessageSender_{tag_name}.exe")
+
+        progress_dialog = QProgressDialog("Downloading latest release...", "Cancel", 0, 100, self)
+        progress_dialog.setWindowTitle("Updating Rapid Message Sender")
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setMinimumDuration(0)
+        progress_dialog.setValue(0)
+
+        dl_worker = DownloadUpdateWorker(download_url, save_path, self)
+
+        def on_progress(downloaded, total):
+            if total > 0:
+                pct = int((downloaded / total) * 100)
+                progress_dialog.setValue(pct)
+                progress_dialog.setLabelText(f"Downloading update ({downloaded // 1024} KB / {total // 1024} KB)...")
+
+        def on_finished(new_exe_path):
+            progress_dialog.close()
+            QMessageBox.information(
+                self,
+                "Update Ready",
+                "Download complete! Click OK to restart and replace the application with the updated version.\n"
+                "The old version will be automatically deleted."
+            )
+            apply_update_and_restart(new_exe_path)
+
+        def on_failed(err_msg):
+            progress_dialog.close()
+            QMessageBox.critical(self, "Download Failed", f"Failed to download update:\n{err_msg}")
+
+        dl_worker.progress_updated.connect(on_progress)
+        dl_worker.download_finished.connect(on_finished)
+        dl_worker.download_failed.connect(on_failed)
+        progress_dialog.canceled.connect(dl_worker.terminate)
+
+        dl_worker.start()
+
+    # -----------------------------------------------------------------
+    # Hotkeys & Controls
+    # -----------------------------------------------------------------
     def _setup_hotkeys(self):
         self.qt_shortcut = QShortcut(QKeySequence("Ctrl+Q"), self)
         self.qt_shortcut.activated.connect(self._stop_sending)

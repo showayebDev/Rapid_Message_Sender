@@ -1,7 +1,7 @@
 [project]
 name = "rapid-message-sender"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.1.1"
+description = "A modern, high-speed desktop automation tool for rapid message sending"
 readme = "README.md"
 authors = [
     { name = "Showayeb Ahamed", email = "showayeb.dev@gmail.com" }

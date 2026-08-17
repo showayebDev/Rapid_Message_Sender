@@ -9,6 +9,7 @@ Designed for ultra-fast, reliable message dispatch across messaging platforms (W
 ## ✨ Key Features
 
 - 💬 **Multi-line Text & Presets**: Type/paste multi-line text or select built-in template presets.
+- 🔄 **GitHub Release Auto-Updater**: Asynchronously checks `showayebDev/Rapid_Message_Sender` for new GitHub Releases, prompts user with changelogs, downloads latest binary, replaces old EXE, and deletes old files automatically upon restart.
 - 🔢 **Customizable Repeat Count**: Dispatch anywhere from 1 to 100,000+ messages seamlessly.
 - ⏱️ **Zero Dropped Messages**: Built-in 5ms clipboard flush & 12ms target render sync micro-pauses ensure every message (1, 2, 3...) is delivered sequentially.
 - 🔢 **Counter Suffix & Prefix**: Add customizable message numbering (`Message 1`, `Message 2`...) with custom separators (`Space`, `Semicolon`, `Dash`, `Hash`).
@@ -78,7 +79,8 @@ Your compiled executable will be output to the `dist/` directory:
 4. **Trigger Key**: Choose your send key (`Enter`, `Ctrl + Enter`, `Shift + Enter`, or `None (Paste Only)`).
 5. **Start Automation**: Click **`🚀 Start Sending`**.
 6. **Focus Target Window**: During the 5-second countdown, switch focus immediately to your target chat box (WhatsApp, Telegram, Discord, Messenger, Notepad, etc.).
-7. **Emergency Stop**: Press **`Ctrl + Q`** from any active window to halt the process at any time!
+7. **Check Updates**: Click **`🔄 Check Updates`** at any time to query GitHub Releases for new updates.
+8. **Emergency Stop**: Press **`Ctrl + Q`** from any active window to halt the process at any time!
 
 ---
 
