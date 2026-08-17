@@ -39,11 +39,11 @@ QString AutomationWorker::formatMessageWithCounter(int index)
         case SeparatorType::Space: sepStr = " "; break;
         case SeparatorType::Semicolon: sepStr = " ; "; break;
         case SeparatorType::Dash: sepStr = " - "; break;
-        case SeparatorType::Hash: sepStr = " #"; break;
+        case SeparatorType::Hash: sepStr = " # "; break;
     }
 
     if (m_config.counterAsPrefix) {
-        return QString("#%1%2%3").arg(index).arg(sepStr).arg(m_config.baseMessage);
+        return QString("%1%2%3").arg(index).arg(sepStr).arg(m_config.baseMessage);
     } else {
         return QString("%1%2%3").arg(m_config.baseMessage).arg(sepStr).arg(index);
     }
