@@ -1,0 +1,690 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1150</width>
+    <height>780</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Rapid Message Sender (v1.0.0)</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainVerticalLayout">
+    <property name="spacing">
+     <number>10</number>
+    </property>
+    <property name="leftMargin">
+     <number>12</number>
+    </property>
+    <property name="topMargin">
+     <number>12</number>
+    </property>
+    <property name="rightMargin">
+     <number>12</number>
+    </property>
+    <property name="bottomMargin">
+     <number>12</number>
+    </property>
+    <item>
+     <!-- Top Header Bar -->
+     <widget class="QFrame" name="headerFrame">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>55</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <layout class="QHBoxLayout" name="headerLayout">
+       <property name="leftMargin">
+        <number>15</number>
+       </property>
+       <property name="rightMargin">
+        <number>15</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="labelTitle">
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>⚡ Rapid Message Sender</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="headerSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnCheckUpdates">
+         <property name="text">
+          <string>🔄 Check Updates</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnNavDoc">
+         <property name="text">
+          <string>📖 User Guide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnEmergencyBadge">
+         <property name="text">
+          <string>🔥 Emergency Stop: Ctrl + Q</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <!-- Main Content Stacked Widget -->
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+
+      <!-- Page 0: Workspace -->
+      <widget class="QWidget" name="pageWorkspace">
+       <layout class="QHBoxLayout" name="workspaceLayout">
+        <property name="spacing">
+         <number>12</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <!-- Left Column: Message Content & Settings -->
+         <widget class="QFrame" name="leftColumnFrame">
+          <layout class="QVBoxLayout" name="leftColumnLayout">
+           <property name="spacing">
+            <number>12</number>
+           </property>
+           <!-- Message Content Group -->
+           <item>
+            <widget class="QGroupBox" name="groupMessage">
+             <property name="title">
+              <string>💬 Message Content</string>
+             </property>
+             <layout class="QVBoxLayout" name="layoutGroupMessage">
+              <item>
+               <layout class="QHBoxLayout" name="templateHeaderLayout">
+                <item>
+                 <spacer name="tmplSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="NoWheelComboBox" name="comboTemplate">
+                  <property name="minimumSize">
+                   <size>
+                    <width>200</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QTextEdit" name="textMessage">
+                <property name="placeholderText">
+                 <string>Hello! This is a rapid automated message.</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+
+           <!-- Automation Settings Group -->
+           <item>
+            <widget class="QGroupBox" name="groupSettings">
+             <property name="title">
+              <string>⚙️ Automation Settings</string>
+             </property>
+             <layout class="QFormLayout" name="formSettings">
+              <property name="horizontalSpacing">
+               <number>15</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>10</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QLabel" name="lblInputMethod">
+                <property name="text">
+                 <string>Input Method:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="NoWheelComboBox" name="comboEngineMode"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="lblRepeat">
+                <property name="text">
+                 <string>How many times send:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="NoWheelSpinBox" name="spinRepetitions">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>99999</number>
+                </property>
+                <property name="value">
+                 <number>10</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="lblInterval">
+                <property name="text">
+                 <string>Wait between each message:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="NoWheelSpinBox" name="spinInterval">
+                <property name="minimum">
+                 <number>100</number>
+                </property>
+                <property name="maximum">
+                 <number>60000</number>
+                </property>
+                <property name="value">
+                 <number>100</number>
+                </property>
+                <property name="suffix">
+                 <string> ms</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="lblDelay">
+                <property name="text">
+                 <string>Start countdown delay:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="NoWheelSpinBox" name="spinStartDelay">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>30</number>
+                </property>
+                <property name="value">
+                 <number>5</number>
+                </property>
+                <property name="suffix">
+                 <string> sec</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="lblTriggerKey">
+                <property name="text">
+                 <string>Trigger Key after Typing:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="NoWheelComboBox" name="comboTriggerKey"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+
+           <!-- Counter Options Group -->
+           <item>
+            <widget class="QGroupBox" name="groupCounter">
+             <property name="title">
+              <string>📊 Counter Options</string>
+             </property>
+             <layout class="QFormLayout" name="formCounter">
+              <property name="horizontalSpacing">
+               <number>15</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>10</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QLabel" name="lblCounterMode">
+                <property name="text">
+                 <string>Message Counter:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="NoWheelComboBox" name="comboCounterMode"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="lblSeparator">
+                <property name="text">
+                 <string>Custom Separator:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="NoWheelComboBox" name="comboSeparator"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+
+        <item>
+         <!-- Right Column: Status & Controls -->
+         <widget class="QFrame" name="rightColumnFrame">
+          <layout class="QVBoxLayout" name="rightColumnLayout">
+           <property name="spacing">
+            <number>12</number>
+           </property>
+
+           <!-- Status & Controls Card -->
+           <item>
+            <widget class="QGroupBox" name="groupStatus">
+             <property name="title">
+              <string>📊 Status &amp; Controls</string>
+             </property>
+             <layout class="QVBoxLayout" name="layoutStatus">
+              <property name="spacing">
+               <number>10</number>
+              </property>
+
+              <!-- Top Status Banner Frame -->
+              <item>
+               <widget class="QFrame" name="frameStatusBanner">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>75</height>
+                 </size>
+                </property>
+                <layout class="QVBoxLayout" name="layoutBannerText">
+                 <item>
+                  <widget class="QLabel" name="lblStatusState">
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>READY TO SEND</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="lblStatusMessage">
+                   <property name="font">
+                    <font>
+                     <pointsize>14</pointsize>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Press 'Start Sending' to begin</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+
+              <!-- Stat Cards Row -->
+              <item>
+               <layout class="QHBoxLayout" name="layoutStatsRow">
+                <property name="spacing">
+                 <number>10</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="cardSent">
+                  <layout class="QVBoxLayout" name="layoutCardSent">
+                   <item>
+                    <widget class="QLabel" name="lblSentVal">
+                     <property name="font">
+                      <font>
+                       <pointsize>18</pointsize>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>0 / 0</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="lblSentTitle">
+                     <property name="text">
+                      <string>Messages Sent</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+
+                <item>
+                 <widget class="QFrame" name="cardElapsed">
+                  <layout class="QVBoxLayout" name="layoutCardElapsed">
+                   <item>
+                    <widget class="QLabel" name="lblElapsedVal">
+                     <property name="font">
+                      <font>
+                       <pointsize>18</pointsize>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>0.0 s</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="lblElapsedTitle">
+                     <property name="text">
+                      <string>Elapsed Time</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+
+              <!-- Progress Bar -->
+              <item>
+               <widget class="QProgressBar" name="progressAutomation">
+                <property name="value">
+                 <number>0</number>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="format">
+                 <string>%p% Completed</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+
+           <!-- Live Preview Logs Group -->
+           <item>
+            <widget class="QGroupBox" name="groupLogs">
+             <property name="title">
+              <string>📑 Live Preview Logs</string>
+             </property>
+             <layout class="QVBoxLayout" name="layoutLogs">
+              <item>
+               <widget class="QTextEdit" name="textLog">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="placeholderText">
+                 <string>Message dispatch logs will appear here...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+
+           <!-- Bottom Action Buttons -->
+           <item>
+            <layout class="QHBoxLayout" name="layoutActionButtons">
+             <property name="spacing">
+              <number>10</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="btnStart">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>45</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>🚀 Start Sending</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnStop">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>45</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>⭕ STOP (Ctrl+Q)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnReset">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>45</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>🔄 Reset All</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+
+      <!-- Page 1: Documentation -->
+      <widget class="QWidget" name="pageDoc">
+       <layout class="QVBoxLayout" name="docLayout">
+        <property name="spacing">
+         <number>10</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <!-- Doc Top Banner Frame -->
+         <widget class="QFrame" name="frameDocHeader">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>70</height>
+           </size>
+          </property>
+          <layout class="QHBoxLayout" name="layoutDocHeader">
+           <property name="leftMargin">
+            <number>15</number>
+           </property>
+           <property name="rightMargin">
+            <number>15</number>
+           </property>
+           <item>
+            <layout class="QVBoxLayout" name="layoutDocTitleText">
+             <item>
+              <widget class="QLabel" name="lblDocTitle">
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>📖 User Guide &amp; Documentation</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="lblDocSubtitle">
+               <property name="text">
+                <string>Complete step-by-step instructions, safety shortcuts, and automation tips</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="docHeaderSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnBackToApp">
+             <property name="minimumSize">
+              <size>
+               <width>160</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>⬅️ Back to Main App</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="textDocContent">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+
+ <customwidgets>
+  <customwidget>
+   <class>NoWheelSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>custom_controls.h</header>
+  </customwidget>
+  <customwidget>
+   <class>NoWheelComboBox</class>
+   <extends>QComboBox</extends>
+   <header>custom_controls.h</header>
+  </customwidget>
+ </customwidgets>
+
+ <resources/>
+ <connections/>
+</ui>
