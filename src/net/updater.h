@@ -22,6 +22,7 @@
 #include <QProcess>
 #include <QCryptographicHash>
 #include <QRegularExpression>
+#include <QFileInfo>
 
 class UpdateDialog : public QDialog {
     Q_OBJECT
@@ -64,6 +65,7 @@ private:
     QString m_releaseNotes;
     QString m_tempExePath;
     QString m_remoteSha256;
+    qint64 m_remoteSizeBytes = 0;
 
     bool isVersionNewer(const QString &latest, const QString &current);
     void evaluateUpdate();

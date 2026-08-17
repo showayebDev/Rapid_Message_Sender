@@ -151,6 +151,7 @@ void AutoUpdater::checkForUpdates(bool silentCheck)
     m_silentCheck = silentCheck;
     m_remoteSha256.clear();
     m_checksumUrl.clear();
+    m_remoteSizeBytes = 0;
 
     QUrl url("https://api.github.com/repos/showayebDev/Rapid_Message_Sender/releases/latest");
     QNetworkRequest request(url);
@@ -219,22 +220,33 @@ void AutoUpdater::onReleaseInfoDownloaded()
     m_latestTag = obj["tag_name"].toString();
     m_releaseNotes = obj["body"].toString();
 
-    // 1. Check for SHA-256 hex string in release notes body (64 hex characters)
+    // 1. Search for 64-hex character SHA-256 string in full raw GitHub JSON API response or release body
     QRegularExpression sha256Regex("\\b[a-fA-F0-9]{64}\\b");
-    QRegularExpressionMatch match = sha256Regex.match(m_releaseNotes);
+    QRegularExpressionMatch match = sha256Regex.match(QString::fromUtf8(data));
     if (match.hasMatch()) {
         m_remoteSha256 = match.captured(0).toLower();
     }
 
-    // 2. Parse assets for .exe executable and .sha256 checksum asset files
+    // 2. Parse assets for .exe executable, digest/sha256 keys, and file size in bytes
     m_downloadUrl.clear();
     m_checksumUrl.clear();
     QJsonArray assets = obj["assets"].toArray();
     for (const QJsonValue &val : assets) {
         QJsonObject assetObj = val.toObject();
         QString name = assetObj["name"].toString();
+
         if (name.endsWith(".exe", Qt::CaseInsensitive)) {
             m_downloadUrl = assetObj["browser_download_url"].toString();
+            m_remoteSizeBytes = assetObj["size"].toInteger();
+
+            // Extract sha256/digest field from asset object if present
+            if (assetObj.contains("digest")) {
+                QRegularExpressionMatch m = sha256Regex.match(assetObj["digest"].toString());
+                if (m.hasMatch()) m_remoteSha256 = m.captured(0).toLower();
+            } else if (assetObj.contains("sha256")) {
+                QRegularExpressionMatch m = sha256Regex.match(assetObj["sha256"].toString());
+                if (m.hasMatch()) m_remoteSha256 = m.captured(0).toLower();
+            }
         } else if (name.endsWith(".sha256", Qt::CaseInsensitive) || name.endsWith("checksums.txt", Qt::CaseInsensitive)) {
             m_checksumUrl = assetObj["browser_download_url"].toString();
         }
@@ -275,17 +287,32 @@ void AutoUpdater::onChecksumDownloaded()
 void AutoUpdater::evaluateUpdate()
 {
     QString localSha256 = calculateLocalSha256();
+    qint64 localSizeBytes = QFileInfo(QCoreApplication::applicationFilePath()).size();
+
     bool versionIsNewer = isVersionNewer(m_latestTag, m_currentVersion);
     bool sha256Mismatch = !m_remoteSha256.isEmpty() && !localSha256.isEmpty() && (m_remoteSha256.toLower() != localSha256.toLower());
+    bool sizeMismatch = (m_remoteSizeBytes > 0 && localSizeBytes > 0 && m_remoteSizeBytes != localSizeBytes);
 
-    bool hasUpdate = versionIsNewer || sha256Mismatch;
+    bool hasUpdate = versionIsNewer || sha256Mismatch || sizeMismatch;
 
     if (hasUpdate) {
         QString updateMessage = m_releaseNotes;
-        if (sha256Mismatch && !versionIsNewer) {
-            updateMessage.prepend("⚠️ **Re-build / Executable Checksum Change Detected**\n\nThe version tag (" + m_latestTag + ") matches your installed version, but a new executable binary build has been updated on GitHub (SHA-256 hash mismatch).\n\n"
-                                  "**Local SHA-256**: `" + localSha256.left(16) + "...`  \n"
-                                  "**Remote SHA-256**: `" + m_remoteSha256.left(16) + "...`\n\n---\n\n");
+        if (!versionIsNewer && (sha256Mismatch || sizeMismatch)) {
+            QString details;
+            if (sha256Mismatch) {
+                details += QString("**Local SHA-256**: `%1`  \n**Remote SHA-256**: `%2`\n\n")
+                               .arg(localSha256)
+                               .arg(m_remoteSha256);
+            }
+            if (sizeMismatch) {
+                details += QString("**Local Executable Size**: %1 KB  \n**Remote Asset Size**: %2 KB\n\n")
+                               .arg(localSizeBytes / 1024)
+                               .arg(m_remoteSizeBytes / 1024);
+            }
+
+            updateMessage.prepend("⚠️ **Re-build / Executable Binary Update Detected**\n\n"
+                                  "The version tag (" + m_latestTag + ") matches your installed version, but a new executable binary build has been published on GitHub.\n\n" +
+                                  details + "---\n\n");
         }
 
         UpdateDialog dlg(m_parentWidget, m_latestTag, m_currentVersion, updateMessage);
