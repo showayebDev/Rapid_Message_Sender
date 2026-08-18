@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rapid Message Sender {{VERSION}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <img src="app_icon.png" alt="Rapid Message Sender Logo" class="brand-logo-img">
+        <div class="brand-info">
+          <h1>Rapid Message Sender</h1>
+          <span class="version-badge" id="versionBadge">{{VERSION}}</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <button class="nav-btn active" id="tabWorkspaceBtn" onclick="switchTab('workspace')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+          Workspace
+        </button>
+        <button class="nav-btn" id="tabGuideBtn" onclick="switchTab('guide')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          User Guide
+        </button>
+      </nav>
+      <div class="header-right">
+        <button class="btn-secondary check-update-btn" onclick="checkUpdates()">
+          <span class="btn-icon">🔄</span> Check Updates
+        </button>
+        <div class="hook-status-badge">
+          <span class="status-dot green-pulse"></span>
+          <span class="status-text">Win32 Hook Active</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Workspace View -->
+      <div id="viewWorkspace" class="tab-view active-view">
+        <div class="grid-layout">
+          
+          <!-- Configuration Panel (Left Column) -->
+          <section class="card config-panel">
+            <div class="card-header">
+              <h2>⚙️ Dispatch Configuration</h2>
+            </div>
+            <div class="card-body">
+              
+              <!-- Preset Templates -->
+              <div class="form-group">
+                <label for="presetSelect">Preset Message Template</label>
+                <select id="presetSelect" class="form-control" onchange="loadPreset(this.value)">
+                  <option value="custom">-- Custom Message --</option>
+                  <option value="ping">⚡ Rapid Ping Alert</option>
+                  <option value="count">🔢 Counting Sequence Test</option>
+                  <option value="emoji">🔥 Emoji Blast Alert</option>
+                  <option value="standup">💬 Team Standup Check-in</option>
+                </select>
+              </div>
+
+              <!-- Message Content Area -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="messageText">Message Content</label>
+                  <span class="char-count" id="charCount">45 chars</span>
+                </div>
+                <textarea id="messageText" class="form-control message-textarea" rows="4" placeholder="Enter text or emoji sequence to dispatch...">Hello! This is an automated rapid ping message. 🚀⚡</textarea>
+              </div>
+
+              <!-- Speed & Timing Controls -->
+              <div class="form-row grid-3">
+                <div class="form-group">
+                  <label for="repeatCount">Repeat Count</label>
+                  <input type="number" id="repeatCount" class="form-control" value="10" min="1" max="999999">
+                </div>
+                <div class="form-group">
+                  <label for="intervalMs">Interval (ms)</label>
+                  <input type="number" id="intervalMs" class="form-control" value="200" min="200" step="50">
+                  <small class="help-text">Min 200 ms floor</small>
+                </div>
+                <div class="form-group">
+                  <label for="startDelaySec">Start Delay (s)</label>
+                  <input type="number" id="startDelaySec" class="form-control" value="5" min="0" max="60">
+                </div>
+              </div>
+
+              <!-- Trigger Key Selection -->
+              <div class="form-group">
+                <label for="triggerKey">Post-Paste Trigger Key</label>
+                <select id="triggerKey" class="form-control">
+                  <option value="Enter" selected>Enter Key (Default)</option>
+                  <option value="Ctrl+Enter">Ctrl + Enter</option>
+                  <option value="Shift+Enter">Shift + Enter</option>
+                  <option value="None">None (Paste Only)</option>
+                </select>
+              </div>
+
+              <!-- Append Counter Option Subgroup -->
+              <div class="counter-subgroup card-subgroup">
+                <div class="checkbox-label">
+                  <input type="checkbox" id="appendCounterCheckbox" onchange="toggleCounterSubgroup(this.checked)">
+                  <label for="appendCounterCheckbox">Append Automated Counter</label>
+                </div>
+                <div id="counterOptionsBox" class="counter-options-box hidden">
+                  <div class="form-row align-center">
+                    <span class="sub-label">Position:</span>
+                    <label class="radio-inline">
+                      <input type="radio" name="counterPos" value="suffix" checked> Suffix (End)
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="counterPos" value="prefix"> Prefix (Start)
+                    </label>
+                  </div>
+                  <div class="form-group separator-group">
+                    <label for="counterSeparator">Separator Character</label>
+                    <select id="counterSeparator" class="form-control form-control-sm">
+                      <option value=" ">Space (" ")</option>
+                      <option value="#">Hash ("#")</option>
+                      <option value="_">Underscore ("_")</option>
+                      <option value="-">Hyphen ("-")</option>
+                      <option value=":">Colon (":")</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="action-btn-group">
+                <button class="btn-primary start-btn" id="startBtn" onclick="startSending()">
+                  <span>🚀 Start Sending</span>
+                </button>
+                <button class="btn-danger stop-btn" id="stopBtn" onclick="stopSending()" disabled>
+                  <span>🛑 Stop (Ctrl+Q)</span>
+                </button>
+              </div>
+              <button class="btn-secondary reset-btn" onclick="resetConfig()">
+                🔄 Reset All Configurations
+              </button>
+            </div>
+          </section>
+
+          <!-- Live Dispatch Dashboard (Right Column) -->
+          <section class="card dashboard-panel">
+            <div class="card-header">
+              <h2>📊 Live Dispatch Dashboard</h2>
+            </div>
+            <div class="card-body">
+              
+              <!-- Stat Cards Grid -->
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-title">Messages Dispatched</div>
+                  <div class="stat-value" id="statDispatched">0 / 10</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-title">Elapsed Time</div>
+                  <div class="stat-value" id="statElapsed">0.0 s</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-title">Dispatch Speed</div>
+                  <div class="stat-value" id="statSpeed">0.0 msg/s</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-title">Engine Status</div>
+                  <div class="stat-value status-badge-val" id="statStatus">
+                    <span class="badge badge-idle" id="badgeStatus">Idle</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="progress-section">
+                <div class="progress-header">
+                  <span>Dispatch Progress</span>
+                  <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                  <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+                </div>
+              </div>
+
+              <!-- Real-Time Activity Log Console -->
+              <div class="console-section">
+                <div class="console-header">
+                  <span class="console-title">🖥️ Real-Time Activity Log</span>
+                  <button class="btn-text clear-log-btn" onclick="clearLogs()">Clear Console</button>
+                </div>
+                <div class="console-terminal" id="consoleTerminal">
+                  <div class="log-line info">
+                    <span class="log-time">[00:00:00]</span>
+                    <span class="log-badge info">INFO</span>
+                    <span class="log-msg">Rapid Message Sender {{VERSION}} initialized. Ready for task.</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- User Guide View -->
+      <div id="viewGuide" class="tab-view hidden">
+        <div class="card guide-card">
+          <div class="card-header">
+            <h2>📖 User & Safety Guide</h2>
+          </div>
+          <div class="card-body guide-body">
+            <h3>⚡ Quick Start Instructions</h3>
+            <ol>
+              <li>Select or type your target text message in the <strong>Message Content</strong> area.</li>
+              <li>Configure <strong>Repeat Count</strong>, <strong>Interval (ms)</strong>, and <strong>Start Delay</strong>.</li>
+              <li>Click <strong>🚀 Start Sending</strong> and immediately switch focus to your desired target application (e.g. Discord, Telegram, WhatsApp Web, Slack, Notepad).</li>
+              <li>Wait for the initial countdown delay (default 2s) to finish.</li>
+            </ol>
+
+            <h3>🛡️ Emergency Fail-Safe Controls</h3>
+            <ul>
+              <li><strong class="highlight-orange">Global Hotkey Ctrl+Q:</strong> Press <kbd>Ctrl</kbd> + <kbd>Q</kbd> anywhere on your operating system to trigger instant emergency abort.</li>
+              <li><strong class="highlight-red">Mouse Top-Left Corner Fail-Safe:</strong> Slam your mouse cursor into the extreme top-left corner pixel of your main monitor <code>(0,0)</code> to immediately halt dispatch.</li>
+              <li><strong class="highlight-blue">Safety Floor:</strong> The execution speed interval is hard-locked to a minimum of 200 ms to protect against rate-limits.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Update Dialog Modal -->
+  <div class="modal-backdrop hidden" id="updateModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🚀 Software Update Available</h3>
+        <button class="close-btn" onclick="closeUpdateModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="version-compare-box">
+          <div>Installed: <span class="badge badge-secondary" id="modalCurrentVer">v1.3.0</span></div>
+          <div class="arrow">➔</div>
+          <div>Latest: <span class="badge badge-success" id="modalLatestVer">v1.3.0</span></div>
+        </div>
+        <div class="release-notes-box">
+          <h4>Release Notes:</h4>
+          <div id="modalReleaseNotes" class="notes-content">Checking for latest update release details...</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeUpdateModal()">Remind Me Later</button>
+        <a id="modalDownloadBtn" href="#" target="_blank" class="btn-primary download-update-btn">
+          ⚡ Download Update
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
