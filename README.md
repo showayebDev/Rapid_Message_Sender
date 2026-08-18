@@ -1,4 +1,4 @@
-# ⚡ Rapid Message Sender (v1.3.0 - Multi-OS Edition)
+# ⚡ Rapid Message Sender (Multi-OS Edition)
 
 A high-performance, modern cross-platform desktop automation application built with **Go (Golang 1.20+)** and an embedded dynamic **HTML5/CSS3/JS Web UI** running in Microsoft Edge / Google Chrome App Mode.
 
@@ -20,54 +20,47 @@ Designed for ultra-fast, reliable message dispatch across desktop applications a
   - **Hardware Mouse Corner `(0,0)` Fail-Safe**: Instantly halts dispatch if mouse cursor touches top-left screen pixel `(0,0)`.
 - 🔄 **Real-Time Activity Log & Stats**: Real-time log streaming over Server-Sent Events (SSE `/api/events`) with timestamped level badges (`INFO`, `SUCCESS`, `WARNING`, `ERROR`).
 - ⚡ **Auto-Shutdown on Window Close**: Automatically terminates the backend Go process when the application desktop window is closed via heartbeat monitoring and unload beacons.
-- 📦 **1-Click Multi-OS Cross-Compilation**: Batch compilation script `build_cross_platform.bat` builds executables for Windows, Linux, and macOS.
-
----
-
-## 📂 Repository Directory Structure
-
-```
-.
-├── main.go                       # App entry point, embedded FS, dynamic port server & desktop launcher
-├── go.mod                        # Go module declaration (rapid-message-sender, go 1.20)
-├── build_cross_platform.bat      # 1-click batch script compiling Windows, Linux, & macOS binaries
-├── pkg/
-│   ├── version/
-│   │   └── version.go            # Single source of truth version file (AppVersion = "v1.3.0")
-│   ├── automation/
-│   │   ├── automation.go         # Unified Driver interface definition & registry
-│   │   ├── input_windows.go      # Win32 SendInput, Clipboard, RegisterHotKey (Ctrl+Q), GetCursorPos
-│   │   ├── input_linux.go        # Linux X11 / xclip / xdotool driver
-│   │   └── input_darwin.go       # macOS CoreGraphics / pbcopy / osascript driver
-│   ├── engine/
-│   │   └── worker.go             # Automation loop thread, countdown, rate calculations, & abort checks
-│   ├── net/
-│   │   └── updater.go            # Async GitHub REST API release checker
-│   └── api/
-│       └── server.go             # HTTP router, dynamic template injector, SSE stream & heartbeat
-└── frontend/
-    ├── index.html                # Responsive dark UI layout with {{VERSION}} placeholders
-    ├── style.css                 # Dark Slate CSS theme, fixed 320px console terminal with scrollbars
-    └── app.js                    # Dynamic version fetcher, EventSource listener, & UI manager
-```
+- 📦 **1-Click Multi-OS Cross-Compilation**: Build scripts for all platforms — `build_cross_platform.bat` (Windows) and `build_cross_platform.sh` (macOS / Linux) — compile executables for Windows, Linux, and macOS.
 
 ---
 
 ## 🛠️ Build & Execution Instructions
 
 ### 1. Build All Cross-Platform Binaries
-Run the included batch script:
+
+**Windows** — run the batch script:
 ```cmd
 build_cross_platform.bat
 ```
-Output binaries in `build/`:
-- `RapidMessageSender_Windows_amd64.exe` (Windows x64 GUI)
-- `RapidMessageSender_Windows_arm64.exe` (Windows ARM64 GUI)
-- `RapidMessageSender_Linux_amd64` (Linux x64)
-- `RapidMessageSender_macOS_amd64` (macOS Intel x64)
-- `RapidMessageSender_macOS_arm64` (macOS Apple Silicon ARM64)
 
-### 2. Run Directly from Source
+**macOS / Linux** — run the shell script:
+```bash
+chmod +x build_cross_platform.sh
+./build_cross_platform.sh
+```
+
+Output binaries in `build/`:
+| File | Platform |
+|------|----------|
+| `RapidMessageSender_Windows_amd64.exe` | Windows x64 GUI |
+| `RapidMessageSender_Windows_arm64.exe` | Windows ARM64 GUI |
+| `RapidMessageSender_Linux_amd64` | Linux x64 |
+| `RapidMessageSender_macOS_amd64` | macOS Intel x64 |
+| `RapidMessageSender_macOS_arm64` | macOS Apple Silicon ARM64 |
+
+> **Note**: The Windows icon resource (`windres`) step is Windows-only and is skipped automatically on macOS/Linux.
+
+### 2. Build for Your Own System Only
+To build a single binary for your **current OS and architecture** (no cross-compilation):
+```bash
+go build -o build/RapidMessageSender .
+```
+On Windows, add `-ldflags "-H=windowsgui"` to suppress the console window:
+```cmd
+go build -ldflags "-H=windowsgui" -o build/RapidMessageSender.exe .
+```
+
+### 3. Run Directly from Source
 ```bash
 go run main.go
 ```
@@ -79,7 +72,7 @@ go run main.go
 | Endpoint | Method | Description |
 |---|---|---|
 | `/` | `GET` | Serves embedded `frontend/index.html` with dynamic `{{VERSION}}` template replacement |
-| `/api/version` | `GET` | Returns `{"version": "v1.3.0"}` |
+| `/api/version` | `GET` | Returns `{"version": "v*.*.*"}` |
 | `/api/start` | `POST` | Initiates automation worker loop with specified configuration JSON |
 | `/api/stop` | `POST` | Triggers instant worker abort |
 | `/api/events` | `GET` | Server-Sent Events (SSE) log and live stats stream |
@@ -92,5 +85,4 @@ go run main.go
 ## 📜 License & Author
 
 - **Author**: Showayeb
-- **Version**: `v1.3.0`
 - **License**: MIT License
